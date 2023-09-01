@@ -1,3 +1,4 @@
+using AspNetCoreIdentityApp.Web.Extansions;
 using AspNetCoreIdentityApp.Web.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,8 +11,7 @@ string connectionString = builder.Configuration.GetConnectionString("DefaultConn
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-builder.Services.AddIdentity<AppUser, AppRole>().AddEntityFrameworkStores<AppDbContext>();
-
+builder.Services.AddIdentityWithExt();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

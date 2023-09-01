@@ -1,4 +1,6 @@
-﻿using AspNetCoreIdentityApp.Web.Models;
+﻿using AspNetCoreIdentityApp.Web.CustomValidations;
+using AspNetCoreIdentityApp.Web.Localizations;
+using AspNetCoreIdentityApp.Web.Models;
 
 namespace AspNetCoreIdentityApp.Web.Extansions
 {
@@ -9,7 +11,7 @@ namespace AspNetCoreIdentityApp.Web.Extansions
             services.AddIdentity<AppUser, AppRole>(opt =>
             {
                 opt.User.RequireUniqueEmail = true;
-                opt.User.AllowedUserNameCharacters = "abcdefghijklmnprstuvwxyz12356789_";
+                //opt.User.AllowedUserNameCharacters = "abcdefghijklmnprstuvwxyz12356789_";
 
                 opt.Password.RequiredLength = 6;
                 opt.Password.RequireNonAlphanumeric = false;
@@ -17,7 +19,9 @@ namespace AspNetCoreIdentityApp.Web.Extansions
                 opt.Password.RequireUppercase = false;
                 opt.Password.RequireDigit = false;
 
-            }).AddEntityFrameworkStores<AppDbContext>();
+            }).AddPasswordValidator<PasswordValidator>()
+            .AddUserValidator<UserValidator>()
+            .AddErrorDescriber<LocalizationIdentityErrorDescriber>().AddEntityFrameworkStores<AppDbContext>();
 
         }
     }

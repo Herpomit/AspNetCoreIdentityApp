@@ -11,7 +11,7 @@
 
         </div>
 
-        <form asp-controller="Home" asp-action="SignIn" method="post">
+        <form asp-controller="Home" asp-action="SignIn" asp-route-returnUrl="@Context.Request.Query["returnUrl"]" method="post">
             <div class="mb-3">
                 <label for="Email" asp-for="Email" class="form-label"></label>
                 <input asp-for="Email" class="form-control">

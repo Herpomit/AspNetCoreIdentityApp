@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using AspNetCoreIdentityApp.Web.Extansions;
+using AspNetCoreIdentityApp.Web.Services;
 
 namespace AspNetCoreIdentityApp.Web.Controllers
 {
@@ -12,12 +13,14 @@ namespace AspNetCoreIdentityApp.Web.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly IEmailService _emailService;
 
-        public HomeController(ILogger<HomeController> logger, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
+        public HomeController(ILogger<HomeController> logger, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IEmailService emailService)
         {
             _logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
+            _emailService = emailService;
         }
 
         public IActionResult Index()
@@ -52,7 +55,7 @@ namespace AspNetCoreIdentityApp.Web.Controllers
                 return View();
             }
 
-            var signInResult = await _signInManager.PasswordSignInAsync(hasUser,model.Password,model.RememberMe,false);
+            var signInResult = await _signInManager.PasswordSignInAsync(hasUser, model.Password, model.RememberMe, false);
 
             if (signInResult.Succeeded)
             {
@@ -82,9 +85,83 @@ namespace AspNetCoreIdentityApp.Web.Controllers
                 return RedirectToAction(nameof(SignUp));
             }
 
-            ModelState.AddModelErrorList(identityResult.Errors.Select(x=> x.Description).ToList());
+            ModelState.AddModelErrorList(identityResult.Errors.Select(x => x.Description).ToList());
             return View();
         }
+
+
+        public IActionResult ForgetPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgetPassword(ForgetPasswordViewModel model)
+        {
+            var hasUser = await _userManager.FindByEmailAsync(model.Email);
+
+            if (hasUser == null)
+            {
+                ModelState.AddModelError(string.Empty, "Bu email Adresine sahip kullanıcı bulunamamıştır!");
+                return View();
+            }
+
+            string passwordResetToken = await _userManager.GeneratePasswordResetTokenAsync(hasUser);
+
+            var passwordResetLink = Url.Action("ResetPassword", "Home", new { userId = hasUser.Id, Token = passwordResetToken }, HttpContext.Request.Scheme);
+
+            TempData["SuccessMessage"] = "Şifre yenileme linki eposta adresinize gönderilmiştir.";
+
+
+            //pgbipnxplwkqwzxw
+
+            await _emailService.SendResetPasswordEmail(passwordResetLink, hasUser.Email);
+
+            return RedirectToAction(nameof(ForgetPassword));
+
+        }
+
+        public IActionResult ResetPassword(string userId, string token)
+        {
+            TempData["userId"] = userId;
+            TempData["token"] = token;
+            return View();
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel request)
+        {
+            var userId = TempData["userId"];
+            var token = TempData["token"];
+
+            if (userId ==null || token == null)
+            {
+                throw new Exception("Bir hata meydana Geldi");
+            }
+
+            var hasUser = await _userManager.FindByIdAsync(userId.ToString());
+
+            if (hasUser == null)
+            {
+                ModelState.AddModelError(string.Empty, "Kullanıcı Bulunamadı!");
+                return View();
+            }
+
+            var result = await _userManager.ResetPasswordAsync(hasUser, token.ToString(), request.Password);
+
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Şifreniz başarı ile yenilenmiştir.";
+            }
+            else
+            {
+                ModelState.AddModelErrorList(result.Errors.Select(x => x.Description).ToList());
+            }
+            return View();
+
+        }
+
 
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
@@ -93,6 +170,6 @@ namespace AspNetCoreIdentityApp.Web.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        
+
     }
 }

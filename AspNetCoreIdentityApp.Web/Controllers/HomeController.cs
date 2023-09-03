@@ -135,7 +135,7 @@ namespace AspNetCoreIdentityApp.Web.Controllers
             var userId = TempData["userId"];
             var token = TempData["token"];
 
-            if (userId ==null || token == null)
+            if (userId == null || token == null)
             {
                 throw new Exception("Bir hata meydana Geldi");
             }

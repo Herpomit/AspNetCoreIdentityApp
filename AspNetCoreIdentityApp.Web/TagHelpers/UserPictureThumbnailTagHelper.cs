@@ -13,12 +13,10 @@ namespace AspNetCoreIdentityApp.Web.TagHelpers
             if (string.IsNullOrEmpty(PictureUrl))
             {
                 output.Attributes.SetAttribute("src", "/userpictures/default_user_picture.jpg");
-                output.Attributes.SetAttribute("style", "width:350px;");
             }
             else
             {
                 output.Attributes.SetAttribute("src", $"/userpictures/{PictureUrl}");
-                output.Attributes.SetAttribute("style", "width:350px;");
             }
 
         }

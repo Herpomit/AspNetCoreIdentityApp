@@ -11,6 +11,7 @@ namespace AspNetCoreIdentityApp.Web.ViewModels
 
         [DataType(DataType.Password)]
         [Required(ErrorMessage = "Şifre alanı boş bırakılamaz!")]
+        [MinLength(6,ErrorMessage ="Şifreniz En az 6 karakter olabilir.")]
         [Display(Name = "Şifre")]
         public string Password { get; set; }
 

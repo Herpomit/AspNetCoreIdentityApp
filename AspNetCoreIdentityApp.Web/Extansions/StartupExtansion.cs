@@ -25,6 +25,9 @@ namespace AspNetCoreIdentityApp.Web.Extansions
                 opt.Password.RequireUppercase = false;
                 opt.Password.RequireDigit = false;
 
+                opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(3);
+                opt.Lockout.MaxFailedAccessAttempts = 3;
+
             }).AddPasswordValidator<PasswordValidator>()
             .AddUserValidator<UserValidator>()
             .AddErrorDescriber<LocalizationIdentityErrorDescriber>()

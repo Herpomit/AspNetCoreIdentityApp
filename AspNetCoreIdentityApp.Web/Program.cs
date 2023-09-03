@@ -14,6 +14,11 @@ string connectionString = builder.Configuration.GetConnectionString("DefaultConn
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
+builder.Services.Configure<SecurityStampValidatorOptions>(opt =>
+{
+    opt.ValidationInterval = TimeSpan.FromMinutes(30);
+});
+
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddIdentityWithExt();

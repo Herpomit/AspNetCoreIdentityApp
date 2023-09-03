@@ -46,7 +46,7 @@ namespace AspNetCoreIdentityApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> SignIn(SignInViewModel model, string returnUrl = null)
         {
-            returnUrl = returnUrl ?? Url.Action("Index", "Home");
+            returnUrl ??= Url.Action("Index", "Home");
 
             var hasUser = await _userManager.FindByEmailAsync(model.Email);
             if (hasUser == null)
@@ -55,14 +55,24 @@ namespace AspNetCoreIdentityApp.Web.Controllers
                 return View();
             }
 
-            var signInResult = await _signInManager.PasswordSignInAsync(hasUser, model.Password, model.RememberMe, false);
+            var signInResult = await _signInManager.PasswordSignInAsync(hasUser, model.Password, model.RememberMe, true);
 
             if (signInResult.Succeeded)
             {
                 return Redirect(returnUrl);
             }
 
-            ModelState.AddModelErrorList(new List<string>() { "Email veya şifre Yanlış" });
+            if (signInResult.IsLockedOut)
+            {
+                ModelState.AddModelError(string.Empty,"3 dakika boyunca giriş yapamazsın.");
+                return View();
+            }
+
+
+            ModelState.AddModelErrorList(new List<string>() { $"Email veya şifre Yanlış ", $"Başarısız Giriş Sayısı = { await _userManager.GetAccessFailedCountAsync(hasUser) }" });
+
+
+            
 
             return View();
 

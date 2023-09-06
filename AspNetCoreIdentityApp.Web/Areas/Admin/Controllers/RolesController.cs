@@ -1,6 +1,7 @@
 ﻿using AspNetCoreIdentityApp.Web.Areas.Admin.Models;
 using AspNetCoreIdentityApp.Web.Extansions;
 using AspNetCoreIdentityApp.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,7 @@ namespace AspNetCoreIdentityApp.Web.Areas.Admin.Controllers
             _userManager = userManager;
         }
 
+        [Authorize(Roles = "admin,role-action")]
         public async Task<IActionResult> Index()
         {
             var roles = await _roleManager.Roles.Select(x => new RoleViewModel()
@@ -30,11 +32,13 @@ namespace AspNetCoreIdentityApp.Web.Areas.Admin.Controllers
             return View(roles);
         }
 
+        [Authorize(Roles = "admin,role-action")]
         public IActionResult RoleCreate()
         {
             return View();
         }
 
+        [Authorize(Roles = "admin,role-action")]
         [HttpPost]
         public async Task<IActionResult> RoleCreate(RoleCreateViewModel request)
         {
@@ -51,6 +55,7 @@ namespace AspNetCoreIdentityApp.Web.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = "admin,role-action")]
         public async Task<IActionResult> RoleUpdate(int id)
         {
             var roleToUpdate = await _roleManager.FindByIdAsync(id.ToString());
@@ -63,6 +68,7 @@ namespace AspNetCoreIdentityApp.Web.Areas.Admin.Controllers
             return View(new RoleUpdateViewModel() { Id = roleToUpdate.Id, Name = roleToUpdate.Name });
         }
 
+        [Authorize(Roles = "admin,role-action")]
         [HttpPost]
         public async Task<IActionResult> RoleUpdate(RoleUpdateViewModel request)
         {
@@ -82,6 +88,7 @@ namespace AspNetCoreIdentityApp.Web.Areas.Admin.Controllers
             return View();
         }
 
+        [Authorize(Roles = "admin,role-action")]
         public async Task<IActionResult> RoleDelete(int id)
         {
             var roleToDelete = await _roleManager.FindByIdAsync(id.ToString());

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using AspNetCoreIdentityApp.Web.Extansions;
 using AspNetCoreIdentityApp.Web.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace AspNetCoreIdentityApp.Web.Controllers
 {
@@ -13,14 +14,16 @@ namespace AspNetCoreIdentityApp.Web.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly AppDbContext _appDbContext;
         private readonly IEmailService _emailService;
 
-        public HomeController(ILogger<HomeController> logger, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IEmailService emailService)
+        public HomeController(ILogger<HomeController> logger, UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IEmailService emailService, AppDbContext appDbContext)
         {
             _logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
             _emailService = emailService;
+            _appDbContext = appDbContext;
         }
 
         public IActionResult Index()
@@ -41,6 +44,19 @@ namespace AspNetCoreIdentityApp.Web.Controllers
         public IActionResult SignIn()
         {
             return View();
+        }
+
+        public async Task<IActionResult> Love()
+        {
+            var Loves = await _appDbContext.LoveBerfin.ToListAsync();
+
+            var result = Loves.Select(x => new LoveBerfinViewModel()
+            {
+                LoveName = x.LoveName,
+                Name = x.Name,
+            }).ToList();
+
+            return View(result);
         }
 
         [HttpPost]

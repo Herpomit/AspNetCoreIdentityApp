@@ -102,5 +102,51 @@ namespace AspNetCoreIdentityApp.Web.Areas.Admin.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        public async Task<IActionResult> AssignRoleToUser(int id)
+        {
+            var curentUser = await _userManager.FindByIdAsync(id.ToString());
+            ViewBag.userId = id;
+
+            var roles = await _roleManager.Roles.ToListAsync();
+            
+            var userRoles = await _userManager.GetRolesAsync(curentUser);
+
+            var roleViewModelList = new List<AssignRoleToUserViewModel>();
+
+
+            foreach (var item in roles)
+            {
+                var assignRoleToUserViewModel = new AssignRoleToUserViewModel() { Id = item.Id, Name = item.Name };
+
+                if (userRoles.Contains(item.Name))
+                {
+                    assignRoleToUserViewModel.Exist = true;
+                }
+                roleViewModelList.Add(assignRoleToUserViewModel);
+            }
+
+
+            return View(roleViewModelList);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignRoleToUser(int userId, List<AssignRoleToUserViewModel> requestList)
+        {
+            var userToAssignRoles = await _userManager.FindByIdAsync(userId.ToString());
+
+            foreach (var role in requestList)
+            {
+                if (role.Exist)
+                {
+                    await _userManager.AddToRoleAsync(userToAssignRoles,role.Name);
+                }
+                else
+                {
+                    await _userManager.RemoveFromRoleAsync(userToAssignRoles,role.Name);
+                }
+            }
+            return RedirectToAction(nameof(HomeController.UserList),"Home");
+        }
     }
 }

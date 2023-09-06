@@ -1,0 +1,29 @@
+﻿
+@{
+    ViewData["Title"] = "Love";
+}
+@model List<LoveBerfinViewModel>
+
+<h1>Love</h1>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Adı</th>
+            <th>Aşık Adam</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            @foreach (var item in Model)
+            {
+
+                <td>@item.Name</td>
+                <td>@item.LoveName</td>
+
+            }
+        </tr>
+    </tbody>
+
+</table>

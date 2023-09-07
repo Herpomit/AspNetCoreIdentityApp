@@ -163,7 +163,7 @@ namespace AspNetCoreIdentityApp.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Claims()
+        public IActionResult Claims()
         {
             var userClaimsList = User.Claims.Select(x => new ClaimViewModel()
             {
@@ -174,6 +174,13 @@ namespace AspNetCoreIdentityApp.Web.Controllers
 
 
             return View(userClaimsList);
+        }
+
+
+        [Authorize(policy:"AntalyaPolicy")]
+        public IActionResult AntalyaPage()
+        {
+            return View();
         }
     }
 }

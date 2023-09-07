@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.FileProviders;
+using System.Security.Claims;
 
 namespace AspNetCoreIdentityApp.Web.Controllers
 {
@@ -27,7 +28,7 @@ namespace AspNetCoreIdentityApp.Web.Controllers
         public async Task<IActionResult> Index()
         {
             var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
-            var userViewModel = new UserViewModel { Email = currentUser.Email, PhoneNumber = currentUser.PhoneNumber, UserName = currentUser.UserName ,PictureUrl = currentUser.Picture};
+            var userViewModel = new UserViewModel { Email = currentUser.Email, PhoneNumber = currentUser.PhoneNumber, UserName = currentUser.UserName, PictureUrl = currentUser.Picture };
 
             return View(userViewModel);
         }
@@ -127,7 +128,7 @@ namespace AspNetCoreIdentityApp.Web.Controllers
 
                 currentUser.Picture = randomFileName;
             }
-            var updateToUserResult =  await _userManager.UpdateAsync(currentUser);
+            var updateToUserResult = await _userManager.UpdateAsync(currentUser);
 
             if (!updateToUserResult.Succeeded)
             {
@@ -137,7 +138,7 @@ namespace AspNetCoreIdentityApp.Web.Controllers
 
             await _userManager.UpdateSecurityStampAsync(currentUser);
             await _signInManager.SignOutAsync();
-            await _signInManager.SignInAsync(currentUser,true);
+            await _signInManager.SignInAsync(currentUser, true);
 
             TempData["SuccessMessage"] = "Üye Bilgileri başarı ile değişmiştir.";
 
@@ -161,5 +162,18 @@ namespace AspNetCoreIdentityApp.Web.Controllers
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Claims()
+        {
+            var userClaimsList = User.Claims.Select(x => new ClaimViewModel()
+            {
+                Issuer = x.Issuer,
+                Type = x.Type,
+                Value = x.Value
+            }).ToList();
+
+
+            return View(userClaimsList);
+        }
     }
 }

@@ -91,7 +91,6 @@ namespace AspNetCoreIdentityApp.Web.Areas.Admin.Controllers
         public async Task<IActionResult> RoleDelete(int id)
         {
             var roleToDelete = await _roleManager.FindByIdAsync(id.ToString());
-
             if (roleToDelete == null)
             {
                 throw new Exception("Silinecek Rol bulunamadı");
@@ -140,6 +139,7 @@ namespace AspNetCoreIdentityApp.Web.Areas.Admin.Controllers
         public async Task<IActionResult> AssignRoleToUser(int userId, List<AssignRoleToUserViewModel> requestList)
         {
             var userToAssignRoles = await _userManager.FindByIdAsync(userId.ToString());
+
 
             foreach (var role in requestList)
             {
